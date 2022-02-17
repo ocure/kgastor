@@ -1,0 +1,224 @@
+package evaluation;
+
+import org.apache.jena.query.Query;
+import org.apache.jena.query.QueryFactory;
+import org.apache.jena.rdf.model.Model;
+import query.QueryUtil;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import static query.QueryUtil.createGroupByClause;
+import static query.QueryUtil.createSelectClauseCountQuery;
+
+public class Queries {
+
+
+    public static String createWhereClauseAgeQueryBeforeAnon(int minValue, int maxValue, List<String> predicates) {
+        StringBuilder whereClause = new StringBuilder("WHERE { ");
+        for (int i = 0; i < predicates.size(); i++) {
+            String attributeVariable = "?attr" + i;
+            whereClause.append("?s ").append(predicates.get(i)).append(" ").append(attributeVariable).append(" . ");
+        }
+        whereClause.append("?s <http://swat.cse.lehigh.edu/onto/univ-bench.owl#age> ?o . ")
+                .append("FILTER(?o >= ").append(minValue).append(" && ?o < ").append(maxValue).append(") . }\n");
+        return whereClause.toString();
+    }
+
+
+    public static String createWhereClauseAgeQuery(int minValue, int maxValue, String saGroup) {
+        StringBuilder whereClause = new StringBuilder("WHERE { { ");
+
+        whereClause.append("?s <http://swat.cse.lehigh.edu/onto/univ-bench.owl#age> ?o . ")
+                .append("FILTER(?o >= ").append(minValue).append(" && ?o < ").append(maxValue).append(") . ");
+        if (saGroup != null) {
+            whereClause.append("?s <http://inGroup> <").append(saGroup).append("> . ");
+        }
+
+        whereClause.append(" } UNION { \n");
+
+        whereClause.append("?s <http://swat.cse.lehigh.edu/onto/univ-bench.owl#age> ?b . ")
+                .append("?b <http://minValue> ?min . ")
+                .append("?b <http://maxValue> ?max . ")
+                .append("FILTER(?min >= ").append(minValue).append(" && ?max < ").append(maxValue).append(") . ");
+
+        if (saGroup != null) {
+            whereClause.append("?s <http://inGroup> <").append(saGroup).append("> . ");
+        }
+
+        whereClause.append("}}");
+        return whereClause.toString();
+    }
+
+
+    public static String createCountAgeQueryBeforeAnon(int minValue, int maxValue, List<String> predicates) {
+        StringBuilder queryStr = new StringBuilder();
+        queryStr.append(createSelectClauseCountQuery(predicates));
+        queryStr.append(createWhereClauseAgeQueryBeforeAnon(minValue, maxValue, predicates));
+        if (!predicates.isEmpty()) {
+            queryStr.append(createGroupByClause(predicates));
+        }
+        return queryStr.toString();
+    }
+
+
+
+    public static String createCountAgeQuery(int minValue, int maxValue, String saGroup) {
+        String selectClause = "SELECT (COUNT(?s) as ?c) \n";
+        String whereClause = createWhereClauseAgeQuery(minValue, maxValue, saGroup);
+
+        return selectClause + whereClause;
+    }
+
+
+    public static String createWhereClauseAgeZipcodeQueryBeforeAnon(List<String> predicates, int minValue, int maxValue, String zipcode) {
+        StringBuilder whereClause = new StringBuilder("WHERE { ");
+        for (int i = 0; i < predicates.size(); i++) {
+            String attributeVariable = "?attr" + i;
+            whereClause.append("?s ").append(predicates.get(i)).append(" ").append(attributeVariable).append(" . ");
+        }
+        whereClause.append("?s <http://swat.cse.lehigh.edu/onto/univ-bench.owl#age> ?o . ")
+                .append("FILTER(?o >= ").append(minValue).append(" && ?o < ").append(maxValue).append(") . ");
+
+        whereClause.append("?s <http://swat.cse.lehigh.edu/onto/univ-bench.owl#zipcode> ?z . ")
+                .append("FILTER regex(?z, \"^").append(zipcode).append("\") . ");
+
+        whereClause.append("?s <http://swat.cse.lehigh.edu/onto/univ-bench.owl#tombstone> 0 . ");
+
+        whereClause.append("} ");
+        return whereClause.toString();
+    }
+
+
+    public static String createCountAgeZipcodeQueryBeforeAnon(List<String> predicates, int minValue, int maxValue, String zipcode) {
+        StringBuilder queryStr = new StringBuilder();
+        queryStr.append(createSelectClauseCountQuery(predicates));
+        queryStr.append(createWhereClauseAgeZipcodeQueryBeforeAnon(predicates, minValue, maxValue, zipcode));
+        if (!predicates.isEmpty()) {
+            queryStr.append(createGroupByClause(predicates));
+        }
+        return queryStr.toString();
+    }
+
+
+    public static String createWhereClauseAgeZipcodeQuery(List<String> predicates, int minValue, int maxValue, String zipcode, List<String> saGroups) {
+        StringBuilder whereClause = new StringBuilder("WHERE { { ");
+
+        whereClause.append("?s <http://swat.cse.lehigh.edu/onto/univ-bench.owl#age> ?o . ")
+                .append("FILTER(?o >= ").append(minValue).append(" && ?o < ").append(maxValue).append(") . ");
+
+        whereClause.append("?s <http://swat.cse.lehigh.edu/onto/univ-bench.owl#zipcode> ?z . \n")
+                .append("FILTER regex(?z, \"^").append(zipcode).append("\") . ");
+
+        for (String g : saGroups) {
+            whereClause.append("?s <http://inGroup> <").append(g).append("> . ");
+        }
+/*
+        for (int i = 0; i < predicates.size(); i++) {
+            String attributeVariable = "?attr" + i;
+            whereClause.append("?s ").append(predicates.get(i)).append(" ").append(attributeVariable).append(" . ");
+        }
+*/
+        whereClause.append(" } UNION { \n");
+
+        whereClause.append("?s <http://swat.cse.lehigh.edu/onto/univ-bench.owl#age> ?b . ")
+                .append("?b <http://minValue> ?min . ")
+                .append("?b <http://maxValue> ?max . ")
+                .append("FILTER(?min >= ").append(minValue).append(" && ?max < ").append(maxValue).append(") . ");
+
+        whereClause.append("?s <http://swat.cse.lehigh.edu/onto/univ-bench.owl#zipcode> ?z . \n")
+                .append("FILTER regex(?z, \"^").append(zipcode).append("\") . ");
+
+        for (String g : saGroups) {
+            whereClause.append("?s <http://inGroup> <").append(g).append("> . ");
+        }
+/*
+        for (int i = 0; i < predicates.size(); i++) {
+            String attributeVariable = "?attr" + i;
+            whereClause.append("?s ").append(predicates.get(i)).append(" ").append(attributeVariable).append(" . ");
+        }
+*/
+        whereClause.append("}}");
+        return whereClause.toString();
+    }
+
+
+    public static String createCountAgeZipcodeQuery(List<String> predicates, int minValue, int maxValue, String zipcode, List<String> saGroups) {
+        StringBuilder queryStr = new StringBuilder();
+        queryStr.append(createSelectClauseCountQuery(predicates));
+        queryStr.append(createWhereClauseAgeZipcodeQuery(predicates, minValue, maxValue, zipcode, saGroups));
+        if (!predicates.isEmpty()) {
+            queryStr.append(createGroupByClause(predicates));
+        }
+        return queryStr.toString();
+    }
+
+
+    public static String createCountAgeZipcodeGroupQuery1(int minValue, int maxValue, String zipcode) {
+        StringBuilder queryStr = new StringBuilder();
+        queryStr.append("SELECT ?s (COUNT(?s) as ?c) \n");
+        queryStr.append(createWhereClauseAgeZipcodeGroupQuery1(minValue, maxValue, zipcode));
+        queryStr.append("GROUP BY ?s");
+        return queryStr.toString();
+    }
+
+
+    public static String createWhereClauseAgeZipcodeGroupQuery1(int minValue, int maxValue, String zipcode) {
+        StringBuilder whereClause = new StringBuilder("WHERE { ");
+
+        whereClause.append("?s <http://swat.cse.lehigh.edu/onto/univ-bench.owl#age> ?o . ")
+                .append("FILTER(?o >= ").append(minValue).append(" && ?o < ").append(maxValue).append(") . ");
+
+        whereClause.append("?s <http://swat.cse.lehigh.edu/onto/univ-bench.owl#zipcode> ?z . ")
+                .append("FILTER regex(?z, \"^").append(zipcode).append("\") . ");
+
+        whereClause.append("} ");
+        return whereClause.toString();
+    }
+
+
+    public static String createCountAgeZipcodeGroupQuery2(int minValue, int maxValue, String zipcode) {
+        StringBuilder queryStr = new StringBuilder();
+        queryStr.append("SELECT ?s (COUNT(?s) as ?c) \n");
+        queryStr.append(createWhereClauseAgeZipcodeGroupQuery2(minValue, maxValue, zipcode));
+        queryStr.append("GROUP BY ?s");
+        return queryStr.toString();
+    }
+
+    public static String createWhereClauseAgeZipcodeGroupQuery2(int minValue, int maxValue, String zipcode) {
+        StringBuilder whereClause = new StringBuilder("WHERE { ");
+
+        whereClause.append("?s <http://swat.cse.lehigh.edu/onto/univ-bench.owl#age> ?b . ")
+                .append("?b <http://minValue> ?min . ")
+                .append("?b <http://maxValue> ?max . ")
+                .append("FILTER(?min >= ").append(minValue).append(" && ?max < ").append(maxValue).append(") . ");
+
+        whereClause.append("?s <http://swat.cse.lehigh.edu/onto/univ-bench.owl#zipcode> ?z . ")
+                .append("FILTER regex(?z, \"^").append(zipcode).append("\") . ");
+
+        whereClause.append("?s <http://inGroup> ?group . ");
+        whereClause.append("} ");
+        return whereClause.toString();
+    }
+
+
+    public static int countSubjectsWithAgeInGroup(int minValue, int maxValue, String saGroup, Model model) {
+        Query q = QueryFactory.create(createCountAgeQuery(minValue, maxValue, saGroup));
+        int res = Integer.parseInt(QueryUtil.execQuery(q, model).get(0).get("c").toString().split("\\^\\^")[0]);
+        return res;
+    }
+
+    public static int countSubjectsWithAgeZipcodeInGroup(int minValue, int maxValue, String zipcode, String saGroup, Model model) {
+        Query q = QueryFactory.create(createCountAgeZipcodeQuery(Collections.emptyList(), minValue, maxValue, zipcode, Arrays.asList(saGroup)));
+        int res = Integer.parseInt(QueryUtil.execQuery(q, model).get(0).get("c").toString().split("\\^\\^")[0]);
+        return res;
+    }
+
+    public static int countSubjectsWithAgeZipcodeInTwoGroups(int minValue, int maxValue, String zipcode, String saGroup1, String saGroup2, Model model) {
+        Query q = QueryFactory.create(createCountAgeZipcodeQuery(Collections.emptyList(), minValue, maxValue, zipcode, Arrays.asList(saGroup1, saGroup2)));
+        int res = Integer.parseInt(QueryUtil.execQuery(q, model).get(0).get("c").toString().split("\\^\\^")[0]);
+        return res;
+    }
+
+}
