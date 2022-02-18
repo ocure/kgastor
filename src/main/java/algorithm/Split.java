@@ -1,21 +1,6 @@
 package algorithm;
 
-import org.apache.jena.query.QueryFactory;
-import org.apache.jena.query.QuerySolution;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.riot.Lang;
-import org.apache.jena.riot.RDFDataMgr;
-import org.apache.jena.update.UpdateAction;
-import query.QueryUtil;
-import util.Counter;
-
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Split {
 

@@ -1,12 +1,5 @@
 package evaluation;
 
-import org.apache.jena.query.Query;
-import org.apache.jena.query.QueryFactory;
-import org.apache.jena.rdf.model.Model;
-import query.QueryUtil;
-
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static query.QueryUtil.createGroupByClause;

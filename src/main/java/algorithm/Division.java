@@ -1,7 +1,6 @@
 package algorithm;
 
 import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
 import query.QueryUtil;
 
 import java.util.*;
@@ -50,18 +49,6 @@ public class Division {
 
 
     public static Map<Integer, List<Tuple>> createMapEquivalenceClasses(List<Tuple> tuples) {
-
-        /*
-        predicates.add("<http://swat.cse.lehigh.edu/onto/univ-bench.owl#tombstone>");
-        List<Tuple> tuples = QueryUtil.retrieveResultsFromQuery((predicates), model).stream().filter(l -> l.get(l.size() - 1).equals("0")).map(t -> {
-            String tupleId = t.get(0);
-            int classId = Integer.parseInt(t.get(1).split("\\^\\^")[0]);
-            int age = Integer.parseInt(t.get(2).split("\\^\\^")[0]);
-            String zipcode = t.get(3);
-            String religion = t.get(4);
-            return new Tuple(tupleId, classId, age, zipcode, religion);
-        }).collect(Collectors.toList());
-         */
         return tuples.stream().collect(Collectors.groupingBy(Tuple::getClassId));
     }
 

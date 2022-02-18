@@ -1,6 +1,5 @@
 package algorithm;
 
-import org.apache.hadoop.io.MD5Hash;
 
 import java.util.*;
 import java.util.stream.Collectors;

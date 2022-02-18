@@ -3,7 +3,6 @@ package query;
 import algorithm.Tuple;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
-import org.apache.jena.update.UpdateAction;
 import util.Counter;
 
 import java.io.IOException;
