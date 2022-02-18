@@ -40,8 +40,6 @@ public class Generalization {
                                             List<String> hierarchies, List<Boolean> isNumerical,
                                             String csvFilepath,Counter blankIdCounter, Counter classIdCounter) throws IOException {
 
-        //Counter blankIdCounter = new Counter();
-
         flushTuplesToCsv(tuples, columnNames, csvFilepath);
 
         Data data = Data.create(csvFilepath, StandardCharsets.UTF_8, ';');
@@ -94,12 +92,8 @@ public class Generalization {
 
         updateDefault.forEach(x -> {
             UpdateAction.parseExecute(x, defaultModel);
-            //System.out.println(x + "\n");
         });
         updatePrivate.forEach(x -> UpdateAction.parseExecute(x, privateModel));
-
-        //updateQueries.forEach(q -> System.out.println(q + "\n\n"));
-        //transformedData.forEach(System.out::println);
     }
 
 
@@ -116,10 +110,8 @@ public class Generalization {
         List<Tuple> tuples = Division.retrieveAllTuples(predicates, privateGraph);
         List<Tuple> oldTuples = Division.filterOldTuples(tuples);
         List<Tuple> newTuples = Division.filterNewTuples(tuples);
-
         List<Tuple> aliveTuples = Division.filterAliveTuples(oldTuples);
         List<Tuple> deadTuples = Division.filterDeadTuples(tuples);
-
 
         System.out.println("TUPLES SIZE : " + tuples.size());
         System.out.println("OLD TUPLES SIZE : " + oldTuples.size());
@@ -130,24 +122,8 @@ public class Generalization {
 
         Map<Integer, List<Tuple>> eqClassesAlive = Division.createMapEquivalenceClasses(aliveTuples);
         Map<Integer, List<Tuple>> eqClassesAll = Division.createMapEquivalenceClasses(oldTuples);
-
-/*
-        System.out.println("MAP SIZE : " + eqClassesAll.size());
-        eqClassesAll.forEach((k,v) -> {
-            System.out.println("CLASS " + k + " ==>  ");
-            System.out.println(v.stream().map(Tuple::getId).collect(Collectors.joining(", ")));
-        });
-        System.out.println("\n\n");
-*/
         Map<Set<String>, List<Integer>> mapSignatures = Division.createMapSignatures(eqClassesAll, eqClassesAlive.keySet());
 
-
-/*
-        mapSignatures.forEach((k,v) -> {
-            System.out.println("Signature " + k + " ==>  " + v);
-        });
-        System.out.println("\n");
-*/
         Map<Set<String>, Bucket> buckets = Division.createBuckets(eqClassesAlive, mapSignatures);
         double elapsed = (System.currentTimeMillis() - start) / 1000.0;
         System.out.println("DIVISION TIME : " + elapsed);
@@ -180,7 +156,6 @@ public class Generalization {
         System.out.println("ASSIGNMENT TIME : " + elapsed);
 
         System.out.println("NUMBER OF  BUCKETS  AFTER ASSIGN==>  " + buckets.size());
-
 
         start = System.currentTimeMillis();
         List<Bucket> finalBuckets = Split.split(buckets, 80, zipRange);

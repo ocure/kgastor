@@ -42,7 +42,6 @@ public class Bucket {
 
 
     public List<String> getUnbalancedAttributes(int maxAttributeSize) {
-        //int attributeMaxSize = attributes.entrySet().stream().map(e -> e.getValue().size()).max(Integer::compareTo).get();
         List<String> unBalancedattributes = attributes.entrySet().stream().filter(e -> e.getValue().size() < maxAttributeSize).
                 map(Map.Entry::getKey).collect(Collectors.toList());
 
@@ -138,7 +137,7 @@ public class Bucket {
                         this.attributes.get(attr).add(t);
                         neededTuplesNb--;
                         totalCount--;
-                        //Si la liste dans newTuples est vide, on peut enlever la clé
+                        // If list in newTuples is empty, the key can be removed
                         if (mapAttributesSize.get(attr) == 0) {
                             mapAttributesSize.remove(attr);
                             mapNewTuples.remove(attr);
@@ -154,8 +153,6 @@ public class Bucket {
             for (int i = 0; i < neededTuplesNb; i++) {
                 // add fake tuples
                 // TODO Créer un bon id pour les counterfeits
-                // TODO demander à Olivier comment il crée les blanks: si c'est un compteur, juste récupérer le nombre le plus haut
-                // TODO et continuer à partir de là
                 this.attributes.get(attr).add(new Tuple("http://Fake" + indexFake, -1, minMaxAgeZip.get(0), minMaxAgeZip.get(2).toString(), attr, true, true));
                 indexFake++;
             }
@@ -169,7 +166,6 @@ public class Bucket {
         StringBuilder sb = new StringBuilder();
         attributes.forEach((signature,tuples) -> {
             sb.append(signature).append("  ==> ");
-            //sb.append(tuples.stream().map(Tuple::getId).collect(Collectors.joining(",", "[", "]\n")));
             sb.append((tuples.stream().map(x -> "(" + x.getId() + ", " + x.getAge() + ", " + x.getZipcode() + ")")
                     .collect(Collectors.joining(",", "[", "]\n"))));
         });

@@ -13,7 +13,6 @@ public class Balancing {
 
 
     public static boolean mEligibilityTest(int mostRepresentedAttributeCount, int totalCount, int m) {
-        //System.out.println(mostRepresentedAttributeCount * 1.0 / totalCount + "    " + 1.0 / m);
         return (mostRepresentedAttributeCount * 1.0 / totalCount) <= (1.0 / m);
     }
 
@@ -25,7 +24,6 @@ public class Balancing {
 
 
     public static AbstractMap.SimpleEntry<String, Integer> findMostRepresentedAttribute(Map<String, Integer> mapAttributeSize) {
-        //Map.Entry<String, List<Tuple>> entry = mapTuples.entrySet().stream().max(Comparator.comparing(e -> e.getValue().size())).get();
         Map.Entry<String, Integer> entry = mapAttributeSize.entrySet().stream().max(Map.Entry.comparingByValue()).get();
         return new AbstractMap.SimpleEntry<>(entry.getKey(), entry.getValue());
     }

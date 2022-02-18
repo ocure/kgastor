@@ -11,13 +11,8 @@ import org.apache.jena.update.UpdateAction;
 import query.QueryUtil;
 import reader.Reader;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 public class Main {
 
@@ -43,8 +38,6 @@ public class Main {
             sb.append("<").append(p).append("> <http://swat.cse.lehigh.edu/onto/univ-bench.owl#tombstone> 0 .\n}");
             UpdateAction.parseExecute(sb.toString(), model);
         });
-        //sb.append("}");
-        //UpdateAction.parseExecute(sb.toString(), model);
     }
 
 
@@ -83,12 +76,8 @@ public class Main {
             sb.append("<").append(t.getId()).append("> <http://swat.cse.lehigh.edu/onto/univ-bench.owl#tombstone> 0").append(" .\n");
         }
         sb.append("}");
-
-        //System.out.println(sb.toString() + "}\n");
         UpdateAction.parseExecute(sb.toString(), model);
     }
-
-
 
 
 
@@ -113,7 +102,6 @@ public class Main {
 
 
 
-
     private static List<Tuple> removeTuplesFromList(List<Tuple> tuples, int r) {
         List<Tuple> res = new ArrayList<>(tuples.subList(tuples.size() - r, tuples.size()));
         for (int i = 0; i < r; i ++) {
@@ -125,7 +113,6 @@ public class Main {
 
 
     public static void main(String[] args) {
-
 
         List<String> columnNames = new ArrayList<>();
         columnNames.add("id");
@@ -141,24 +128,9 @@ public class Main {
         qidPredicates.add("<http://swat.cse.lehigh.edu/onto/univ-bench.owl#zipcode>");
 
         List<String> hierarchies = new ArrayList<>();
-        //hierarchies.add("src/main/resources/hierarchies/age.csv");
-        //hierarchies.add("src/main/resources/hierarchies/zipcode.csv");
 
         String sensitivePredicate = "<http://swat.cse.lehigh.edu/onto/univ-bench.owl#hasReligion>";
 
-        /*
-        List<Tuple> newTuples = new ArrayList<>();
-        Tuple t1 = new Tuple("Emily", -1, 25, "21000", "Flu", false, false);
-        Tuple t2 = new Tuple("Mary", -1, 46, "30000", "Gastro", false, false);
-        Tuple t3 = new Tuple("Ray", -1, 54, "31000", "Dyspepsia", false, false);
-        Tuple t4 = new Tuple("Tom", -1, 60, "44000", "Gastro", false, false);
-        Tuple t5 = new Tuple("Vince", -1, 65, "36000", "Flu", false, false);
-        newTuples.add(t1);
-        newTuples.add(t2);
-        newTuples.add(t3);
-        newTuples.add(t4);
-        newTuples.add(t5);
-*/
 
         Dataset dataset = null;
         Model privateGraph = ModelFactory.createDefaultModel();
@@ -170,10 +142,6 @@ public class Main {
         int zipSuffixSize = 0;
         AtomicInteger totalNbCounterfeits = new AtomicInteger(0);
         AtomicInteger maxNbCounterfeits = new AtomicInteger(0);
-
-
-        int tuplePoolSize = 100 ;
-        int nbLoops = 2;
 
 
         String arg;
@@ -238,14 +206,6 @@ public class Main {
                         rate = Integer.parseInt(args[i]);
                         System.out.println(args[i]);
                         break;
-                    case "-pool":
-                        tuplePoolSize = Integer.parseInt(args[i]);
-                        System.out.println(args[i]);
-                        break;
-                    case "-i":
-                        nbLoops = Integer.parseInt(args[i]);
-                        System.out.println(args[i]);
-                        break;
                     case "-zipSuffix":
                         zipSuffixSize = Integer.parseInt(args[i]);
                         break;
@@ -267,14 +227,11 @@ public class Main {
         predicates.add("<http://swat.cse.lehigh.edu/onto/univ-bench.owl#tombstone>");
 
 
-
-
         if (dataset != null) {
             dataset.begin(ReadWrite.WRITE);
         }
 
         System.out.println("PRIVATE SIZE AFTER QID/SA : " + privateGraph.size());
-
 
 
         double start = System.currentTimeMillis();
@@ -283,8 +240,6 @@ public class Main {
         double elapsed = (System.currentTimeMillis() - start) / 1000.0;
         System.out.println("\nPREPARATION TIME : " + elapsed + "\n");
 
-
-        //TODO enlever partie des profs dans pool
 
         // We shuffle the professors and create the pool from the last tuples in the list
         List<Tuple> tuples = Division.retrieveAllTuples(predicates, privateGraph);
@@ -302,7 +257,6 @@ public class Main {
 
         start = System.currentTimeMillis();
         for (int i = 0; i < insertPool.size(); i++) {
-            //System.out.println(insertPool.get(i).getId());
             tuples.remove(tuples.size() - 1);
         }
         elapsed = (System.currentTimeMillis() - start) / 1000.0;
@@ -315,8 +269,7 @@ public class Main {
         System.out.println("Compute First AgeZip Map : " + elapsed);
 
 
-        // TODO première publication
-
+        // Première publication
         double totalTime = 0.0;
         double relError = 0.0;
         start = System.currentTimeMillis();
@@ -327,7 +280,7 @@ public class Main {
         totalTime += elapsed;
 
 
-        //TODO EVAL
+        // EVAL
         start = System.currentTimeMillis();
         Map<List<String>, Integer> mapAfter = Evaluation.createMapCountAgeZipAfterAnon(defaultGraph, zipSuffixSize);
         elapsed = (System.currentTimeMillis() - start) / 1000.0;
@@ -342,28 +295,11 @@ public class Main {
 
         long ageZipBeforeSize = mapAgeZip.entrySet().stream().filter(e -> e.getValue() != 0).count();
         int ageZipAfterSize = mapAfter.size();
-/*
-        mapAgeZip.forEach((k,v) -> System.out.println(k + " ==>  " + v));
-        System.out.println("\nXXXXXXXXXXXXXXXXXX\n");
-        mapAfter.forEach((k,v) -> System.out.println(k + " ==>  " + v));
-*/
+
         System.out.println("RELATIVE ERROR  :  " + relError + "\n");
 
         int count = 1;
-
-        /*
-        List<String> zipcodes = QueryUtil.getZipcodes(privateGraph).stream().map(z -> {
-            int prefixSize = z.length() - 3;
-            return z.substring(0, prefixSize);
-        }).distinct().collect(Collectors.toList());
-        relError += Evaluation.evaluate(zipcodes, privateGraph, defaultGraph);
-        int count = 1;
-        */
-
-        // TODO boucle avec nbloops
-
         int updateVolume = tuples.size() / rate;
-        // TODO CHANGE BOUCLE avec rate
         for (int i = 0; i < rate; i++) {
             System.out.println("----------\nLOOP  " + i + "\n");
 
@@ -401,8 +337,6 @@ public class Main {
             System.out.println("Compute AgeZip from list : " + elapsed);
 
 
-            // TODO query the graph to retrieve approximate count values and create another map
-
             start = System.currentTimeMillis();
             mapAfter = Evaluation.createMapCountAgeZipAfterAnon(defaultGraph, zipSuffixSize);
             elapsed = (System.currentTimeMillis() - start) / 1000.0;
@@ -415,7 +349,6 @@ public class Main {
             System.out.println("Map After SIZE: " + ageZipAfterSize);
 
 
-
             start = System.currentTimeMillis();
             relError = Evaluation.evaluateRelativeError(mapAgeZip, mapAfter);
             totalRelativeError += relError;
@@ -423,34 +356,15 @@ public class Main {
             elapsed = (System.currentTimeMillis() - start) / 1000.0;
             System.out.println("EVALUATING RELATIVE ERROR : " + elapsed);
 
-            /*
-            mapAgeZip.forEach((k,v) -> System.out.println(k + " ==>  " + v));
-            System.out.println("\nXXXXXXXXXXXXXXXXXX\n");
-            mapAfter.forEach((k,v) -> System.out.println(k + " ==>  " + v));
-            */
-
             System.out.println("DEFAULT SIZE : " + defaultGraph.size());
             System.out.println("PRIVATE SIZE : " + privateGraph.size());
 
-
             System.out.println("RELATIVE ERROR  :  " + relError + "\n");
-
-            // TODO iterate through main map and compute relative errors
-
-            /*
-            zipcodes = QueryUtil.getZipcodes(privateGraph).stream().map(z -> {
-                int prefixSize = z.length() - 3;
-                return z.substring(0, prefixSize);
-            }).distinct().collect(Collectors.toList());
-            count++;
-            relError += Evaluation.evaluate(zipcodes, privateGraph, defaultGraph);
-*/
         }
 
         System.out.println("\nXXXXXXXXXXXXXXXX\nTOTAL EXEC TIME FOR ALL M-INVARIANCE  ==> " + totalTime);
         System.out.println("TOTAL RELATIVE ERROR  ==> " + totalRelativeError/count);
 
-        // TODO print max nb fakes et nb total fakes
         System.out.println("TOTAL NUMBER OF COUNTERFEIT TUPLES  ==>  " + totalNbCounterfeits.get());
         System.out.println("AVERAGE NUMBER OF COUNTERFEIT TUPLES  ==>  " + totalNbCounterfeits.get() / count);
         System.out.println("MAX NUMBER OF COUNTERFEIT TUPLES  ==>  " + maxNbCounterfeits.get());
@@ -472,7 +386,7 @@ public class Main {
         }
 
 
-        // TODO Commenter
+
         /*
         try(OutputStream out = new FileOutputStream("default.ttl", false)) {
             RDFDataMgr.write(out, defaultGraph, Lang.TTL);
@@ -481,96 +395,7 @@ public class Main {
         } catch (IOException e) {
             e.printStackTrace();
         }
-*/
-
-
-/*
-        List<Tuple> tuples = Division.retrieveAllTuples(predicates, privateGraph);
-        System.out.println("TUPLES SIZE : " + tuples.size());
-        List<Tuple> oldTuples = Division.filterOldTuples(tuples);
-        System.out.println("OLD TUPLES SIZE : " + oldTuples.size());
-        List<Tuple> aliveTuples = Division.filterAliveTuples(oldTuples);
-        System.out.println("ALIVE TUPLES SIZE : " + aliveTuples.size());
-
-
-
-        Map<Integer, List<Tuple>> eqClassesAlive = Division.createMapEquivalenceClasses(aliveTuples);
-        Map<Integer, List<Tuple>> eqClassesAll = Division.createMapEquivalenceClasses(tuples);
-
-
-        System.out.println("MAP SIZE : " + eqClassesAll.size());
-
-        eqClassesAll.forEach((k,v) -> {
-            System.out.println("CLASS " + k + " ==>  ");
-            System.out.println(v.stream().map(Tuple::getId).collect(Collectors.joining(", ")));
-        });
-        System.out.println("\n\n");
-
-        Map<Set<String>, List<Integer>> mapSignatures = Division.createMapSignatures(eqClassesAll);
-        mapSignatures.forEach((k,v) -> {
-            System.out.println("Signature " + k + " ==>  " + v);
-        });
-        System.out.println("\n");
-
-        Map<Set<String>, Bucket> buckets = Division.createBuckets(eqClassesAlive, mapSignatures);
-
-        //TODO method pour récupérer new tuples
-        List<Tuple> newTuples = Division.filterNewTuples(tuples);
-        Map<String, List<Tuple>> mapNewTuples = Balancing.groupTuplesBySa(newTuples);
-        int indexFakeCounter = 0;
-        for (Map.Entry<Set<String>, Bucket> setBucketEntry : buckets.entrySet()) {
-            Bucket b = setBucketEntry.getValue();
-            indexFakeCounter = b.balance(mapNewTuples, m, indexFakeCounter);
-        }
-
-
-        buckets.forEach((k,v) -> {
-            System.out.println("Bucket 1" + k + " ==>  ");
-            System.out.println(v);
-            System.out.println("\n");
-        });
-
-        System.out.println("XXXXXXXXX\n");
-
-        Map<String, Integer> mapSaSize = Balancing.computeMapSaSize(mapNewTuples);
-        Assignment.assignment(m, mapNewTuples, mapSaSize, buckets);
-
-
-        buckets.forEach((k,v) -> {
-            System.out.println("Bucket 2 " + k + " ==>  ");
-            System.out.println(v);
-            System.out.println("\n");
-        });
-
-        System.out.println("XXXXXXXXXXX");
-
-        // TODO param pour zipRange
-        List<Bucket> finalBuckets = Split.split(buckets, 80, 25000);
-
-        finalBuckets.forEach( x -> {
-            System.out.println("Bucket 3 " + x.getSignature() + " ==>  ");
-            System.out.println(x);
-            System.out.println("\n");
-        });
-
-
-        String query = "DELETE {  ?s ?p ?o } WHERE { ?s ?p ?o . ?s <http://swat.cse.lehigh.edu/onto/univ-bench.owl#tombstone> 1}";
-        UpdateAction.parseExecute(query, privateGraph);
-
-
-        Counter blankIdCounter = new Counter();
-        Counter classIdCounter = new Counter();
-
-        for (Bucket fb : finalBuckets) {
-            try {
-                Generalization.globalGeneralization(defaultGraph, privateGraph, fb.getTuples(), qidPredicates, sensitivePredicate, columnNames, hierarchies,
-                        isNumerical, csvPath, blankIdCounter, classIdCounter);
-                classIdCounter.increment();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-*/
+        */
     }
 
 

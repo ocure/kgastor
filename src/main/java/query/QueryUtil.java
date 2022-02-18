@@ -120,7 +120,6 @@ public class QueryUtil {
         List<QuerySolution> sols = execQuery(q, model);
 
         List<List<String>> results = sols.stream().map(qs -> {
-            //System.out.println("OOOOOOOOOOOOOOOOOOOOOO   ==>   " + qs);
             List<String> lst = new ArrayList<>();
             lst.add(qs.get("s").toString());
             for (int i = 0; i < predicates.size(); i++) {
@@ -147,52 +146,6 @@ public class QueryUtil {
     }
 
 
-/*
-    public static List<String> execQueryCsvFormat(List<String> predicates, List<String> columnNames, Model model) {
-        Query q = QueryFactory.create(createQuery(predicates));
-        List<QuerySolution> sols = execQuery(q, model);
-
-        List<String> lines = sols.stream().map(qs -> {
-            StringBuilder sb = new StringBuilder();
-            sb.append(qs.get("s").toString()).append(";");
-            int i;
-            for (i = 0; i < predicates.size() - 1; i++) {
-                String attributeVariable = "attr" + i;
-                String[] tab = qs.get(attributeVariable).toString().split("\\^\\^");
-                sb.append(tab[0]).append(";");
-            }
-            String attributeVariable = "attr" + i;
-            String[] tab = qs.get(attributeVariable).toString().split("\\^\\^");
-            sb.append(tab[0]);
-            return sb.toString();
-        }).collect(Collectors.toList());
-
-        List<String> res = new ArrayList<>();
-        String firstLine = columnNames.stream().collect(Collectors.joining(";"));
-        res.add(firstLine);
-        res.addAll(lines);
-        return res;
-    }
-*/
-
-/*
-    public static String createDeleteClause(List<String> originalData, List<String> predicates, List<Boolean> isNumerical) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < predicates.size(); i++) {
-            sb.append("<").append(originalData.get(0)).append("> ").append(predicates.get(i)).append(" ?attr").append(i).append(".\n");
-
-            if (isNumerical.get(i)) {
-                sb.append("<").append(originalData.get(0)).append("> ").append(predicates.get(i)).append(" ?o .\n")
-                        .append("?o <http://minValue> ?min .\n")
-                        .append("?o <http://maxValue> ?max .\n");
-            }
-
-        }
-        // TODO supprimer
-        return sb.toString();
-    }
-*/
-
     public static String createDeleteClause(List<String> predicates, String sensitivePredicate, List<Boolean> isNumerical) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < predicates.size(); i++) {
@@ -203,11 +156,7 @@ public class QueryUtil {
                         .append("?o <http://minValue> ?min .\n")
                         .append("?o <http://maxValue> ?max .\n");
             }
-            /*
-            else {
-                sb.append("\"").append(originalData.get(i + 1)).append("\" .\n");
-            }
-             */
+
         }
         sb.append("?s ").append(sensitivePredicate).append(" ?sa .");
         return sb.toString();
@@ -238,9 +187,6 @@ public class QueryUtil {
             }
             else {
                 if (isNumerical.get(i) && !tab[0].equals("*")) {
-                    /*if (tab[0].equals("*")) {
-                        System.out.println("AAAAAAAAAA : " + i);
-                    }*/
                     sb.append(tab[0]).append(" .\n");
                 }
                 else {
@@ -249,10 +195,6 @@ public class QueryUtil {
             }
         }
         sb.append("<").append(transformedData.get(0)).append("> ").append(sensitivePredicate).append(" \"").append(tuple.getSa()).append("\" .\n");
-        // TODO supprimer
-        //sb.append("<").append(transformedData.get(0)).append("> ").append(" <http://swat.cse.lehigh.edu/onto/univ-bench.owl#classID> ").append(classIdCounter.getValue()).append(" .\n");
-        //sb.append("<").append(transformedData.get(0)).append("> ").append(" <http://swat.cse.lehigh.edu/onto/univ-bench.owl#tombstone> 0 .");
-
         return sb.toString();
     }
 
@@ -276,7 +218,6 @@ public class QueryUtil {
 
         }
 
-        // TODO supprimer
         //stringFirstClause.append("<").append(originalData.get(0)).append("> <http://swat.cse.lehigh.edu/onto/univ-bench.owl#classID> ?classId . \n}");
         //stringSecondClause.append("<").append(originalData.get(0)).append("> <http://swat.cse.lehigh.edu/onto/univ-bench.owl#classID> ?classId . \n}");
         stringFirstClause.append("}");
@@ -305,9 +246,6 @@ public class QueryUtil {
 
         }
 
-        // TODO supprimer
-        //stringFirstClause.append("<").append(originalData.get(0)).append("> <http://swat.cse.lehigh.edu/onto/univ-bench.owl#classID> ?classId . \n}");
-        //stringSecondClause.append("<").append(originalData.get(0)).append("> <http://swat.cse.lehigh.edu/onto/univ-bench.owl#classID> ?classId . \n}");
         stringFirstClause.append("?s ").append(sensitivePredicate).append(" ?sa .}");
         stringSecondClause.append("?s ").append(sensitivePredicate).append(" ?sa .}");
         return stringFirstClause + " UNION \n" + stringSecondClause;
@@ -315,58 +253,6 @@ public class QueryUtil {
 
 
 
-/*
-    public static List<List<String>> computeGeneralizationQueries(List<Tuple> tuples, List<List<String>> transformedData, List<String> predicates, String sensitivePredicate,
-                                                            List<Boolean> isNumerical, Counter blankIdCounter, Counter classIdCounter) {
-
-        //Counter blankIdCounter = new Counter();
-        //List<String> updateQueries = new ArrayList<>();
-        List<List<String>> updateQueries = new ArrayList<>();
-        List<String> queriesPrivate = new ArrayList<>();
-        List<String> queriesDefault = new ArrayList<>();
-
-
-        for (int i = 0; i < transformedData.size(); i++) {
-            //List<String> od = originalData.get(i);
-            List<String> td = transformedData.get(i);
-
-            // Update default
-            String insertClause =  createInsertClause(tuples.get(i), td, predicates, sensitivePredicate, isNumerical, blankIdCounter, classIdCounter);
-            if (!tuples.get(i).getIsFake() && tuples.get(i).getClassId() != -1) {
-                // TODO rajouter class id dans delete insert
-                String deleteClause = createDeleteClause(td, predicates, isNumerical);
-                String whereClause =  createUpdateWhereClause(td, predicates, isNumerical);
-
-                String queryString = "DELETE { " + deleteClause + "}\nINSERT { " + insertClause + "}\nWHERE { " +
-                        whereClause + "}";
-                System.out.println(queryString + "\n");
-                queriesDefault.add(queryString);
-            }
-            else {
-                String queryString = "INSERT DATA { \n" + insertClause + " }\n";
-                System.out.println(queryString);
-                queriesDefault.add(queryString);
-            }
-
-            // Update privates
-            if (!tuples.get(i).getIsFake()) {
-                String queryString = createUpdateQueryClassId(classIdCounter, td);
-                queriesPrivate.add(queryString);
-            }
-            else {
-                //String queryString = "INSERT DATA { <" + td.get(0) + "> <http://swat.cse.lehigh.edu/onto/univ-bench.owl#classID> "
-                //        + classIdCounter.getValue() + "}";
-                queriesPrivate.add(createInsertQueryPrivateFakeTuples(tuples.get(i), classIdCounter, sensitivePredicate));
-
-            }
-        }
-
-        //System.out.println(updateQueries);
-        updateQueries.add(queriesPrivate);
-        updateQueries.add(queriesDefault);
-        return updateQueries;
-    }
-*/
 
     public static List<List<String>> computeGeneralizationQueries(List<Tuple> tuples, List<List<String>> transformedData, List<String> predicates, String sensitivePredicate,
                                                                   List<Boolean> isNumerical, Counter blankIdCounter, Counter classIdCounter) {
@@ -390,8 +276,6 @@ public class QueryUtil {
                 queriesPrivate.add(queryString);
             }
             else {
-                //String queryString = "INSERT DATA { <" + td.get(0) + "> <http://swat.cse.lehigh.edu/onto/univ-bench.owl#classID> "
-                //        + classIdCounter.getValue() + "}";
                 queriesPrivate.add(createInsertQueryPrivateFakeTuples(tuples.get(i), classIdCounter, sensitivePredicate));
             }
         }
@@ -435,10 +319,7 @@ public class QueryUtil {
         return selectClause.toString();
     }
 
-    public static String createSelectClauseCountAgeZipGroupQuery() {
-        StringBuilder selectClause = new StringBuilder("SELECT ?group (COUNT(?s) as ?c) \n");
-        return selectClause.toString();
-    }
+
 
 
     public static String createGroupByClause(List<String> predicates) {
@@ -450,43 +331,6 @@ public class QueryUtil {
         groupByClause.append("ORDER BY ?c");
         return groupByClause.toString();
     }
-
-/*
-    public static void deleteTuplesFromModel(List<Tuple> tuples, String sensitivePredicate, Model model) {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("?s <http://swat.cse.lehigh.edu/onto/univ-bench.owl#age> ?age .\n");
-        sb.append("?s <http://swat.cse.lehigh.edu/onto/univ-bench.owl#zipcode> ?zip .\n");
-        sb.append("?s ").append(sensitivePredicate).append(" ?sa .\n");
-        sb.append("?s <http://swat.cse.lehigh.edu/onto/univ-bench.owl#classID> ?classId .\n");
-        sb.append("?s <http://swat.cse.lehigh.edu/onto/univ-bench.owl#tombstone> ?tomb").append(" .\n");
-
-
-        //System.out.println(sb.toString() + "}\n");
-        String queryString = "DELETE { \n" + sb.toString() + "} WHERE {\n" + sb.toString() + "}";
-        UpdateAction.parseExecute(queryString, model);
-    }
-*/
-
-
-
-    public static String createCountQueryZipcode(String zipcodePrefix) {
-        return
-                "SELECT (COUNT(?s) as ?c) WHERE { ?s <http://swat.cse.lehigh.edu/onto/univ-bench.owl#zipcode> ?o . \n" +
-                        "FILTER regex(?o, \"^" + zipcodePrefix + "\") }";
-    }
-
-
-    public static List<String> getZipcodes(Model model) {
-        List<String> zipcodes = new ArrayList<>();
-        String queryStr = "select distinct ?o where { ?s <http://swat.cse.lehigh.edu/onto/univ-bench.owl#zipcode> ?o . }";
-        Query q = QueryFactory.create(queryStr);
-
-        execQuery(q, model).forEach(qs -> zipcodes.add(qs.get("o").toString().split("\\^\\^")[0]));
-        return zipcodes;
-    }
-
-
 
 
 }
