@@ -1,0 +1,11 @@
+SELECT distinct ?p WHERE {?s ?p ?o.}
+// selective, public, 3 public TPs : retrieves min and max ages for a random person
+prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>	prefix owl:   <http://www.w3.org/2002/07/owl#> 	prefix ub:    <http://swat.cse.lehigh.edu/onto/univ-bench.owl#> SELECT ?x ?min ?max WHERE { ?x ub:age ?a. ?a <http://maxValue> ?max; <http://minValue> ?min. }  LIMIT 1
+// selective+, public, 3 public TPs : retrieves min and max ages for 5 random persons
+prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>	prefix owl:   <http://www.w3.org/2002/07/owl#> 	prefix ub:    <http://swat.cse.lehigh.edu/onto/univ-bench.owl#> SELECT ?x ?min ?max WHERE { ?x ub:age ?a. ?a <http://maxValue> ?max; <http://minValue> ?min. }  LIMIT 5
+// Non-selective, public, 3 public TPs: retrieves full professors, age intervals
+prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>	prefix owl:   <http://www.w3.org/2002/07/owl#> 	prefix ub:    <http://swat.cse.lehigh.edu/onto/univ-bench.owl#> SELECT ?fp ?min ?max  WHERE { ?fp rdf:type <http://swat.cse.lehigh.edu/onto/univ-bench.owl#FullProfessor>; ub:age ?a. ?a <http://maxValue> ?max; <http://minValue> ?min. }
+// Non-selective, private, Aggregation on zip, age interval, 4 public TPs
+prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>	prefix owl:   <http://www.w3.org/2002/07/owl#> 	prefix ub:    <http://swat.cse.lehigh.edu/onto/univ-bench.owl#> SELECT ?r ?z (count(*) as ?count) WHERE { ?fp ub:hasReligion ?r; ub:zipcode ?z. FILTER (!isBlank(?r))}  GROUP BY ?r ?z
+// Non-selective, private, Aggregation on age interval, 3 public TPs
+prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>	prefix owl:   <http://www.w3.org/2002/07/owl#> 	prefix ub:    <http://swat.cse.lehigh.edu/onto/univ-bench.owl#> SELECT ?min ?max  (count(*) as ?count) WHERE { ?fp ub:age ?a. ?a <http://maxValue> ?max; <http://minValue> ?min. } GROUP BY ?min ?max

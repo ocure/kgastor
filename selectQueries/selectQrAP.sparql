@@ -1,0 +1,23 @@
+// selective, private, 1 private TP, 3 public TPs : retrieves prof id and real age
+prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>	prefix owl:   <http://www.w3.org/2002/07/owl#> 	prefix ub:    <http://swat.cse.lehigh.edu/onto/univ-bench.owl#> SELECT ?realAge WHERE { GRAPH <http://private> { <http://www.Department12.University0.edu/FullProfessor7> ub:age ?realAge. }  }
+// selective, private, 1 private TP, 3 public TPs : retrieves prof id and real age
+prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>	prefix owl:   <http://www.w3.org/2002/07/owl#> 	prefix ub:    <http://swat.cse.lehigh.edu/onto/univ-bench.owl#> SELECT ?realAge WHERE { GRAPH <http://private> { <http://www.Department12.University0.edu/FullProfessor7> ub:age ?realAge. }  }
+// selective, private-public, 2 private TPs, 3 public TPs : retrieves prof id, real age and age interval
+prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>	prefix owl:   <http://www.w3.org/2002/07/owl#> 	prefix ub:    <http://swat.cse.lehigh.edu/onto/univ-bench.owl#> SELECT ?x ?realAge ?min ?max WHERE { GRAPH <http://private> { <http://www.Department12.University0.edu/FullProfessor7> owl:sameAs ?x; ub:age ?realAge. }  ?x ub:age ?a. ?a <http://maxValue> ?max; <http://minValue> ?min. }
+// selective, public, 3 public TPs : retrieves min and max ages for a random person
+prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>	prefix owl:   <http://www.w3.org/2002/07/owl#> 	prefix ub:    <http://swat.cse.lehigh.edu/onto/univ-bench.owl#> SELECT ?x ?min ?max WHERE {  ?x ub:age ?a. ?a <http://maxValue> ?max; <http://minValue> ?min. }  LIMIT 1
+// selective+, public, 3 public TPs : retrieves min and max ages for 5 random persons
+prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>	prefix owl:   <http://www.w3.org/2002/07/owl#> 	prefix ub:    <http://swat.cse.lehigh.edu/onto/univ-bench.owl#> SELECT ?x ?min ?max WHERE { ?x ub:age ?a. ?a <http://maxValue> ?max; <http://minValue> ?min. }  LIMIT 5
+// Non-selective, private, 1 private TP, 3 public TPs: retrieves full professors, age intervals
+prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>	prefix owl:   <http://www.w3.org/2002/07/owl#> 	prefix ub:    <http://swat.cse.lehigh.edu/onto/univ-bench.owl#> SELECT ?fp ?min ?max  WHERE { GRAPH <http://private> { ?x owl:sameAs ?fp. } ?fp rdf:type <http://swat.cse.lehigh.edu/onto/univ-bench.owl#FullProfessor>; ub:age ?a. ?a <http://maxValue> ?max; <http://minValue> ?min.  }
+// Non-selective, private-public, 2 private TPs, 3 public TPs : retrieves full professors, real age and age intervals
+prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>	prefix owl:   <http://www.w3.org/2002/07/owl#> 	prefix ub:    <http://swat.cse.lehigh.edu/onto/univ-bench.owl#> SELECT ?fp ?nag ?min ?max  WHERE { GRAPH <http://private> { ?x owl:sameAs ?fp; ub:age ?nag }  ?fp rdf:type <http://swat.cse.lehigh.edu/onto/univ-bench.owl#FullProfessor>; ub:age ?a. ?a <http://maxValue> ?max; <http://minValue> ?min.  }
+// Non-selective, public, 3 public TPs: retrieves full professors, age intervals
+prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>	prefix owl:   <http://www.w3.org/2002/07/owl#> 	prefix ub:    <http://swat.cse.lehigh.edu/onto/univ-bench.owl#> SELECT ?fp ?min ?max  WHERE {  ?fp rdf:type <http://swat.cse.lehigh.edu/onto/univ-bench.owl#FullProfessor>; ub:age ?a. ?a <http://maxValue> ?max; <http://minValue> ?min.  }
+// Non-selective, private, Aggregation on zip, age interval, 4 public TPs
+prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>	prefix owl:   <http://www.w3.org/2002/07/owl#> 	prefix ub:    <http://swat.cse.lehigh.edu/onto/univ-bench.owl#> SELECT ?zip ?min ?max  (count(*) as ?count) WHERE { ?fp ub:age ?a; ub:zipcode ?zip. ?a <http://maxValue> ?max; <http://minValue> ?min. } GROUP BY ?zip ?min ?max
+// Non-selective, private, Aggregation on age interval, 3 public TPs
+prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>	prefix owl:   <http://www.w3.org/2002/07/owl#> 	prefix ub:    <http://swat.cse.lehigh.edu/onto/univ-bench.owl#> SELECT ?min ?max  (count(*) as ?count) WHERE { ?fp ub:age ?a. ?a <http://maxValue> ?max; <http://minValue> ?min.  } GROUP BY ?min ?max
+
+
+
