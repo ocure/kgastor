@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Main-Class: kgastor.main.Main
+Class-Path: commons-lang3-3.12.0.jar jakarta.json-2.0.1.jar libthrift-0.
+ 14.2.jar jena-tdb2-4.2.0.jar jena-dboe-trans-data-4.2.0.jar httpclient-
+ cache-4.5.13.jar jcl-over-slf4j-1.7.32.jar jackson-core-2.12.5.jar jena
+ -shaded-guava-4.2.0.jar jackson-annotations-2.12.5.jar commons-cli-1.4.
+ jar jackson-databind-2.12.5.jar slf4j-simple-1.7.32.jar javax.annotatio
+ n-api-1.3.2.jar slf4j-api-1.7.32.jar jena-dboe-base-4.2.0.jar jena-dboe
+ -transaction-4.2.0.jar jena-iri-4.2.0.jar jena-core-4.2.0.jar jena-arq-
+ 4.2.0.jar httpclient-4.5.13.jar commons-csv-1.9.0.jar commons-compress-
+ 1.21.jar commons-codec-1.15.jar titanium-json-ld-1.1.0.jar jsonld-java-
+ 0.13.3.jar commons-io-2.11.0.jar jena-base-4.2.0.jar jena-dboe-storage-
+ 4.2.0.jar httpcore-4.4.13.jar jena-dboe-index-4.2.0.jar collection-0.7.
+ jar
+
