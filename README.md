@@ -28,7 +28,7 @@ categories depending on the part of the program to which they apply:
 > - -zip_range [value] : Provide the range between the highest zip code and the lowest. This value is used in the split phase in order to normalize the domain of zip codes so that all QIDs are comparable.
 > - -ratio [value] : Provide the number of releases to be stimulated. This directly influences the number of tuples removed and added between each release (when the rate grows, the number of updates between each release decreases).
 > - -hierarchies [hierarchy1] [hierarchy2] …  :  Provide paths to csv files containing the generalization hierarchies for the QIDs.
-> - -zipcode [N]  :  Sets the generalization level for the zipcodes (the size of the prefix) used when creating counting queries during the evaluation
+> - -zipSuffix [N]  :  Sets the generalization level for the zipcodes (the size of the prefix) used when creating counting queries during the evaluation
 
 **Example**
 
