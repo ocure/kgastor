@@ -34,3 +34,5 @@ categories depending on the part of the program to which they apply:
 
 java -jar M-invarianceRdf.jar -tdb dataset/ -f  religion.ttl  zip.ttl   age.ttl    -hierarchies age_hierarchy.csv    zip_hierarchy_3000.csv -csv_path arx.csv -m 4 -zip_range 3000 -ratio 100 -sensitive "<http://swat.cse.lehigh.edu/onto/univ-bench.owl#hasReligion>" -zipSuffix 3
 
+**Datasets**
+During our evaluation, we used our own extension of LUBM (see paper). Even the smallest of our dataset (LUBM100) is already too large to fit into our public github account. You can access both the original (lubm100.nt) and privacy-enriched LUBM 100 (lubmAno100.ttl) files at http://igm.univ-mlv.fr/~ocure/kgastor/
