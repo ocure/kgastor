@@ -40,30 +40,6 @@ public class Main {
     }
 
 
-/*
-    private static void removeTuplesFromModel(List<Tuple> tuples, Model model) {
-
-        String filterExpression = tuples.stream().map(t -> {
-            return "?s = <" + t.getId() + ">";
-        }).collect(Collectors.joining(" || "));
-
-        String query = "DELETE {?s ?p ?o} WHERE {?s ?p ?o . FILTER("+ filterExpression + ").}";
-        UpdateAction.parseExecute(query, model);
-    }
-
-
-    private static void updateDeleteTombstones(List<Tuple> tuples, Model model) {
-        String filterExpression = tuples.stream().map(t -> {
-            return "?s = <" + t.getId() + ">";
-        }).collect(Collectors.joining(" || "));
-
-        String query = "DELETE {?s <http://swat.cse.lehigh.edu/onto/univ-bench.owl#tombstone> ?o} " +
-                "INSERT {?s <http://swat.cse.lehigh.edu/onto/univ-bench.owl#tombstone> 1} " +
-                "WHERE {?s <http://swat.cse.lehigh.edu/onto/univ-bench.owl#tombstone> ?o . FILTER("+ filterExpression + ").}";
-
-        UpdateAction.parseExecute(query, model);
-    }
-*/
 
     private static void addTuplesToModel(List<Tuple> tuples, String sensitivePredicate, Model model) {
         StringBuilder sb = new StringBuilder("INSERT DATA {\n");
@@ -319,7 +295,7 @@ public class Main {
 
 
             start = System.currentTimeMillis();
-            //TODO delete les blanks nodes pour l'âge avant
+
             Generalization.apply_M_Invariance(privateGraph, defaultGraph, predicates, qidPredicates, sensitivePredicate, m, zipRange,
                     columnNames, hierarchies, isNumerical, csvPath, maxNbCounterfeits, totalNbCounterfeits);
 
@@ -369,33 +345,9 @@ public class Main {
         System.out.println("MAX NUMBER OF COUNTERFEIT TUPLES  ==>  " + maxNbCounterfeits.get());
 
 
-
-/*
-        try(OutputStream out = new FileOutputStream("default.ttl", false)) {
-            RDFDataMgr.write(out, defaultGraph, Lang.TTL);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-*/
         if (dataset != null) {
             dataset.abort();
             dataset.end();
         }
-
-
-
-        /*
-        try(OutputStream out = new FileOutputStream("default.ttl", false)) {
-            RDFDataMgr.write(out, defaultGraph, Lang.TTL);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        */
     }
-
-
 }
